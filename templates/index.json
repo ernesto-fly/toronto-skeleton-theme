@@ -1,20 +1,30 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin theme editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "sections": {
-    "main": {
-      "type": "hello-world",
-      "settings": {}
+    "hero": {
+      "type": "hero",
+      "settings": {
+        "heading": "Call to action heading",
+        "text": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in</p>",
+        "button_label": "Button",
+        "button_url": ""
+      }
+    },
+    "new-arrivals": {
+      "type": "collection-rows",
+      "settings": {
+        "heading": "New arrivals",
+        "subheading": "Player Hoodies, Vintage Tee's, & More",
+        "button_label": "Shop all",
+        "button_url": ""
+      },
+      "blocks": {
+        "row-1": { "type": "row", "settings": { "collection": "2026-player-hoodies" } },
+        "row-2": { "type": "row", "settings": { "collection": "" } },
+        "row-3": { "type": "row", "settings": { "collection": "2026-official-2026-toronto-koi-player-kit" } },
+        "row-4": { "type": "row", "settings": { "collection": "founders-collection" } }
+      },
+      "block_order": ["row-1", "row-2", "row-3", "row-4"]
     }
   },
-  "order": [
-    "main"
-  ]
+  "order": ["hero", "new-arrivals"]
 }

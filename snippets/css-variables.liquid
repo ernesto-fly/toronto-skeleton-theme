@@ -1,18 +1,30 @@
 {% style %}
-  {% # Loads all font variantions with display: swap %}
-  {{ settings.type_primary_font | font_face: font_display: 'swap' }}
-  {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
-  {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
-  {{ settings.type_primary_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
+  {% # Custom header font: Humane %}
+  @font-face {
+    font-family: 'Humane';
+    src: url({{ 'humane-regular.ttf' | asset_url }}) format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Humane';
+    src: url({{ 'humane-medium.ttf' | asset_url }}) format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
 
   :root {
-    --font-primary--family: {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
-    --font-primary--style: {{ settings.type_primary_font.style }};
-    --font-primary--weight: {{ settings.type_primary_font.weight }};
+    --font-primary--family: 'owners', sans-serif;
+    --font-header--family: 'Humane', 'owners', sans-serif;
     --page-width: {{ settings.max_page_width }};
     --page-margin: {{ settings.min_page_margin }}px;
     --color-background: {{ settings.background_color }};
     --color-foreground: {{ settings.foreground_color }};
+    --color-button-primary-background: {{ settings.button_primary_background }};
+    --color-button-secondary-background: {{ settings.button_secondary_background }};
+    --color-button-secondary-border: {{ settings.button_secondary_border }};
     --style-border-radius-inputs: {{ settings.input_corner_radius }}px;
   }
 {% endstyle %}

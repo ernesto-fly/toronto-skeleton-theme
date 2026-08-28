@@ -1,0 +1,377 @@
+<div class="new-arrivals">
+  <div class="collection-selection-container">
+    <div class="collection-selection-container__top">
+      <div class="collection-selection-container__heading-group">
+        {% if section.settings.heading != blank %}
+          <h2 class="collection-selection-container__heading">{{ section.settings.heading }}</h2>
+        {% endif %}
+        {% if section.settings.subheading != blank %}
+          <p class="collection-selection-container__subheading">{{ section.settings.subheading }}</p>
+        {% endif %}
+      </div>
+
+      {% if section.settings.button_label != blank %}
+        <a href="{{ section.settings.button_url }}" class="button button--primary collection-selection-container__button">
+          {{ section.settings.button_label }}
+        </a>
+      {% endif %}
+    </div>
+
+    <hr class="collection-selection-container__divider">
+  </div>
+
+  {% assign selected_block = blank %}
+  {% for block in section.blocks %}
+    {% if selected_block == blank and block.settings.collection.products.size > 0 %}
+      {% assign selected_block = block %}
+    {% endif %}
+  {% endfor %}
+
+  <div class="collection-selector">
+    <div class="button-selectors-stacked">
+      {% for block in section.blocks %}
+        {% assign block_product_count = block.settings.collection.products.size %}
+        <a
+          href="{{ block.settings.collection.url }}"
+          class="button-selectors-stacked__button{% if block == selected_block %} button-selectors-stacked__button--active{% endif %}"
+          {% if block_product_count > 0 %}data-tiles-id="{{ block.id }}"{% endif %}
+          {{ block.shopify_attributes }}
+        >
+          <span>{{ block.settings.collection.title | default: 'Collection' }}</span>
+          {{ 'icon-arrow.svg' | inline_asset_content }}
+        </a>
+
+        {% if block_product_count > 0 %}
+          {% comment %}
+            Gather up to 4 DISTINCT images, one per product first (for
+            product diversity), only dipping into a second/third photo of
+            the same product if there aren't enough distinct products to
+            fill 4 tiles. Never repeats the same picture.
+          {% endcomment %}
+          {% assign tile_count = 0 %}
+          <script type="application/json" data-collection-tiles="{{ block.id }}">
+            [
+              {% for image_index in (0..3) %}
+                {% for product in block.settings.collection.products %}
+                  {% if tile_count < 4 %}
+                    {% assign image = product.images[image_index] %}
+                    {% if image %}
+                      {% unless tile_count == 0 %},{% endunless %}
+                      {
+                        "image": {{ image | image_url: width: 600 | json }},
+                        "alt": {{ image.alt | default: product.title | json }},
+                        "title": {{ product.title | json }},
+                        "url": {{ product.url | json }}
+                      }
+                      {% assign tile_count = tile_count | plus: 1 %}
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
+            ]
+          </script>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="collection-tiles-row" data-collection-tiles-row></div>
+  </div>
+</div>
+
+{% javascript %}
+  document.querySelectorAll('.new-arrivals').forEach(function (section) {
+    var buttons = section.querySelectorAll('.button-selectors-stacked__button[data-tiles-id]');
+    var tilesRow = section.querySelector('[data-collection-tiles-row]');
+    if (!tilesRow) return;
+
+    function renderTiles(data) {
+      tilesRow.innerHTML = '';
+      var lastUrl = null;
+      data.forEach(function (item) {
+        var isRepeatProduct = item.url === lastUrl;
+        lastUrl = item.url;
+
+        var tile = document.createElement('a');
+        tile.className = 'collection-tiles-row__tile';
+        tile.href = item.url;
+
+        var img = document.createElement('img');
+        img.src = item.image;
+        img.alt = item.alt;
+        img.loading = 'lazy';
+        tile.appendChild(img);
+
+        if (isRepeatProduct) return tilesRow.appendChild(tile);
+
+        var title = document.createElement('span');
+        title.className = 'collection-tiles-row__tile-title';
+        title.textContent = item.title;
+        tile.appendChild(title);
+
+        tilesRow.appendChild(tile);
+      });
+    }
+
+    function activate(button, animate) {
+      var script = section.querySelector('script[data-collection-tiles="' + button.dataset.tilesId + '"]');
+      if (!script) return false;
+
+      var data;
+      try {
+        data = JSON.parse(script.textContent);
+      } catch (e) {
+        return false;
+      }
+
+      buttons.forEach(function (b) {
+        b.classList.remove('button-selectors-stacked__button--active');
+      });
+      button.classList.add('button-selectors-stacked__button--active');
+
+      if (!animate) {
+        renderTiles(data);
+        return true;
+      }
+
+      tilesRow.classList.add('collection-tiles-row--fading');
+      window.setTimeout(function () {
+        renderTiles(data);
+        tilesRow.classList.remove('collection-tiles-row--fading');
+      }, 100);
+
+      return true;
+    }
+
+    buttons.forEach(function (button) {
+      button.addEventListener('click', function (event) {
+        if (activate(button, true)) event.preventDefault();
+      });
+    });
+
+    var initialButton = section.querySelector('.button-selectors-stacked__button--active[data-tiles-id]') || buttons[0];
+    if (initialButton) activate(initialButton, false);
+  });
+{% endjavascript %}
+
+{% stylesheet %}
+  .new-arrivals {
+    width: 100%;
+  }
+  .collection-selection-container {
+    width: 100%;
+    height: 230px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 var(--page-margin);
+  }
+  .collection-selection-container__top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .collection-selection-container__subheading {
+    margin-top: 0.5rem;
+  }
+  .collection-selection-container__button {
+    padding-left: calc(1.5em + 10px);
+    padding-right: calc(1.5em + 10px);
+  }
+  .collection-selection-container__divider {
+    width: 100%;
+    height: 1px;
+    border: none;
+    background-color: var(--color-button-primary-background);
+    margin: 0;
+  }
+
+  .collection-selector {
+    display: flex;
+    padding: 5px var(--page-margin);
+  }
+  .button-selectors-stacked {
+    width: 410px;
+    height: 340px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
+  }
+  .button-selectors-stacked__button {
+    width: 388px;
+    height: 72px;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-decoration: none;
+    color: var(--color-foreground);
+    border-radius: 8px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+  }
+  .button-selectors-stacked__button svg {
+    width: 1.25rem;
+    transition: transform 0.15s ease;
+  }
+  .button-selectors-stacked__button:hover,
+  .button-selectors-stacked__button--active {
+    color: var(--color-button-primary-background);
+    transform: translateY(-4px);
+    box-shadow: -4px 4px 12px -4px color-mix(in srgb, var(--color-button-primary-background) 35%, transparent);
+  }
+  .button-selectors-stacked__button:hover svg,
+  .button-selectors-stacked__button--active svg {
+    transform: translateX(0.25rem);
+  }
+
+  .collection-tiles-row {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 340px;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    opacity: 1;
+    transition: opacity 0.1s ease;
+  }
+  .collection-tiles-row--fading {
+    opacity: 0;
+  }
+  .collection-tiles-row__tile {
+    position: relative;
+    flex: 1 1 0;
+    height: 100%;
+    display: block;
+    overflow: hidden;
+    background-color: var(--color-foreground);
+  }
+  .collection-tiles-row__tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+  .collection-tiles-row__tile:hover img {
+    transform: scale(1.08);
+  }
+  .collection-tiles-row__tile-title {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    padding: 1rem;
+    color: var(--color-background);
+    font-family: var(--font-header--family);
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 90rem) {
+    .collection-selector {
+      flex-wrap: wrap;
+    }
+    .button-selectors-stacked,
+    .collection-tiles-row {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 48rem) {
+    .collection-selection-container {
+      height: auto;
+      padding: 2.5rem var(--page-margin) 1.5rem;
+    }
+    .collection-selection-container__top {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1.25rem;
+    }
+
+    .collection-selector {
+      flex-direction: column;
+      padding: 1rem var(--page-margin);
+      gap: 1.5rem;
+    }
+    .button-selectors-stacked {
+      height: auto;
+      justify-content: flex-start;
+    }
+    .button-selectors-stacked__button {
+      width: 100%;
+      height: auto;
+      padding: 1rem 1.5rem;
+    }
+
+    .collection-tiles-row {
+      height: auto;
+      flex-wrap: wrap;
+      overflow: visible;
+    }
+    .collection-tiles-row__tile {
+      flex: 1 1 calc(50% - 1px);
+      aspect-ratio: 1;
+      height: auto;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Collection rows",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "New arrivals"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Player Hoodies, Vintage Tee's, & More"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Shop all"
+    },
+    {
+      "type": "url",
+      "id": "button_url",
+      "label": "Button link"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "row",
+      "name": "Collection",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection rows",
+      "blocks": [
+        { "type": "row" },
+        { "type": "row" },
+        { "type": "row" },
+        { "type": "row" }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,148 @@
+<div class="cta-section">
+  <div class="cta-container">
+    {% if section.settings.heading != blank %}
+      <h1 class="cta-container__heading">{{ section.settings.heading }}</h1>
+    {% endif %}
+
+    {% if section.settings.text != blank %}
+      <div class="cta-container__text">{{ section.settings.text }}</div>
+    {% endif %}
+
+    {% if section.settings.button_label != blank %}
+      <a href="{{ section.settings.button_url }}" class="button button--primary cta-container__button">
+        <span class="cta-container__button-label">{{ section.settings.button_label }}</span>
+      </a>
+    {% endif %}
+  </div>
+
+  <div class="cta-image">
+    {% if section.settings.image %}
+      <img
+        src="{{ section.settings.image | image_url: width: 1600 }}"
+        alt="{{ section.settings.image.alt | escape }}"
+        width="{{ section.settings.image.width }}"
+        height="{{ section.settings.image.height }}"
+        loading="lazy"
+      >
+    {% endif %}
+  </div>
+</div>
+
+{% stylesheet %}
+  .cta-section {
+    width: 100%;
+    height: 700px;
+    display: flex;
+  }
+  .cta-container {
+    width: 50%;
+    height: 100%;
+    container-type: inline-size;
+    container-name: cta;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 var(--page-margin);
+  }
+  .cta-container__heading {
+    font-family: var(--font-primary--family);
+    font-weight: 700;
+    font-size: 79px;
+    line-height: 1.05;
+    margin-bottom: 1.5cqw;
+  }
+  .cta-container__text {
+    font-size: clamp(0.875rem, 2.5cqw, 1.25rem);
+    line-height: 1.5;
+    color: var(--color-foreground);
+    margin-bottom: 2.5cqw;
+  }
+  .cta-container__button {
+    display: inline-flex;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .cta-image {
+    width: 50%;
+    height: 100%;
+  }
+  .cta-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  @media (max-width: 48rem) {
+    .cta-section {
+      height: auto;
+      flex-direction: column;
+    }
+    .cta-container,
+    .cta-image {
+      width: 100%;
+    }
+    .cta-image {
+      height: 24rem;
+    }
+    .cta-container {
+      padding: 3rem var(--page-margin);
+    }
+    .cta-container__heading {
+      font-size: clamp(2.5rem, 10vw, 79px);
+      margin-bottom: 1rem;
+    }
+    .cta-container__text {
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  document.querySelectorAll('.cta-container__button').forEach(function (button) {
+    var naturalWidth = button.getBoundingClientRect().width;
+    button.style.width = (naturalWidth / 3) + 'px';
+    button.style.flexShrink = '0';
+  });
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Hero",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Call to action heading"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Button"
+    },
+    {
+      "type": "url",
+      "id": "button_url",
+      "label": "Button link"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero"
+    }
+  ]
+}
+{% endschema %}

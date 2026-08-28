@@ -78,6 +78,72 @@ body {
   color: var(--color-foreground);
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-header--family);
+  letter-spacing: 3px;
+  font-weight: 500;
+}
+
+h2,
+h3,
+h4 {
+  font-family: var(--font-primary--family);
+  font-weight: 700;
+}
+
+h1 {
+  font-size: clamp(2.5rem, 6vw + 1rem, 79px);
+}
+
+h2 {
+  font-size: clamp(2.5rem, 6vw + 1rem, 79px);
+}
+
+h3 {
+  font-size: clamp(2rem, 5vw + 1rem, 64px);
+}
+
+/** Buttons */
+.button,
+button,
+input[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.75em 1.5em;
+  border-radius: var(--style-border-radius-inputs);
+  border: 1px solid transparent;
+  transition: opacity 0.15s ease;
+}
+
+.button:hover,
+button:hover,
+input[type="submit"]:hover {
+  opacity: 0.85;
+}
+
+.button--primary,
+button,
+input[type="submit"] {
+  background-color: var(--color-button-primary-background);
+  color: var(--color-background);
+  border-color: var(--color-button-primary-background);
+}
+
+.button--secondary {
+  background-color: var(--color-button-secondary-background);
+  color: var(--color-button-secondary-border);
+  border-color: var(--color-button-secondary-border);
+}
+
 /** Section layout utilities */
 
 /**

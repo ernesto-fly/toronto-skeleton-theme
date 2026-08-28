@@ -37,6 +37,9 @@
     "alignment": "Alignment",
     "background": "Background",
     "foreground": "Foreground",
+    "button_primary_background": "Primary button background",
+    "button_secondary_background": "Secondary button background",
+    "button_secondary_border": "Secondary button border",
     "grid_gap": "Grid spacing",
     "grid_item_width": "Grid item width",
     "input_corner_radius": "Input corner radius",
@@ -62,7 +65,8 @@
     },
     "page_width": {
       "narrow": "Narrow",
-      "wide": "Wide"
+      "wide": "Wide",
+      "full": "Full width"
     },
     "size": {
       "large": "Large",
