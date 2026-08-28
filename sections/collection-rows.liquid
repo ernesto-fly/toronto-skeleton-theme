@@ -314,9 +314,12 @@
       overflow: visible;
     }
     .collection-tiles-row__tile {
-      flex: 1 1 calc(50% - 1px);
+      flex: 1 1 100%;
       aspect-ratio: 1;
       height: auto;
+    }
+    .collection-tiles-row__tile:not(:first-child) {
+      display: none;
     }
   }
 {% endstylesheet %}
