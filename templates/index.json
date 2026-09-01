@@ -18,10 +18,10 @@
         "button_url": ""
       },
       "blocks": {
-        "row-1": { "type": "row", "settings": { "collection": "2026-player-hoodies" } },
-        "row-2": { "type": "row", "settings": { "collection": "" } },
-        "row-3": { "type": "row", "settings": { "collection": "2026-official-2026-toronto-koi-player-kit" } },
-        "row-4": { "type": "row", "settings": { "collection": "founders-collection" } }
+        "row-1": { "type": "row", "settings": { "collection": "founders-collection" } },
+        "row-2": { "type": "row", "settings": { "collection": "2026-official-2026-toronto-koi-player-kit" } },
+        "row-3": { "type": "row", "settings": { "collection": "tkoi-vintage-tee" } },
+        "row-4": { "type": "row", "settings": { "collection": "all" } }
       },
       "block_order": ["row-1", "row-2", "row-3", "row-4"]
     }

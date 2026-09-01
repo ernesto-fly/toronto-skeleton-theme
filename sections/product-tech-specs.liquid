@@ -1,0 +1,310 @@
+{% comment %}
+  Reads each product's own specs from metafields (namespace "custom") so
+  this single section/template works for every product without needing a
+  separate template per product:
+
+    custom.fit                    single line text
+    custom.pocketing               single line text
+    custom.temperature_percent     integer (0-100)
+    custom.temperature_description single line text
+    custom.materials               single line text
+    custom.care_items              multi-line text, one item per line
+    custom.shipping_note           single line text
+    custom.functionality_items     multi-line text, "Title | Description" per line
+
+  Define these under Settings > Custom data > Products in Shopify admin,
+  then fill them in per product. Any field left blank on a product simply
+  doesn't render -- if nothing at all is set, the whole section is hidden.
+{% endcomment %}
+
+{% assign fit = product.metafields.custom.fit.value %}
+{% assign pocketing = product.metafields.custom.pocketing.value %}
+{% assign temperature_percent = product.metafields.custom.temperature_percent.value %}
+{% assign temperature_description = product.metafields.custom.temperature_description.value %}
+{% assign materials = product.metafields.custom.materials.value %}
+{% assign care_items_raw = product.metafields.custom.care_items.value %}
+{% assign shipping_note = product.metafields.custom.shipping_note.value %}
+{% assign functionality_raw = product.metafields.custom.functionality_items.value %}
+
+{% assign has_specs = false %}
+{% if fit != blank or pocketing != blank or temperature_percent != blank or materials != blank or care_items_raw != blank or shipping_note != blank %}
+  {% assign has_specs = true %}
+{% endif %}
+{% assign has_functionality = false %}
+{% if functionality_raw != blank %}
+  {% assign has_functionality = true %}
+{% endif %}
+
+{% if has_specs or has_functionality %}
+  <div class="tech-specs full-width">
+    {% if has_specs %}
+      <div class="tech-specs__column tech-specs__column--specs">
+        <h2 class="tech-specs__heading">{{ section.settings.specs_heading }}</h2>
+
+        <div class="tech-specs__rows">
+          {% if fit != blank %}
+            <div class="tech-specs__row">
+              <span class="tech-specs__row-label">Fit</span>
+              <span class="tech-specs__row-value">{{ fit }}</span>
+            </div>
+          {% endif %}
+
+          {% if pocketing != blank %}
+            <div class="tech-specs__row">
+              <span class="tech-specs__row-label">Pocketing</span>
+              <span class="tech-specs__row-value">{{ pocketing }}</span>
+            </div>
+          {% endif %}
+
+          {% if temperature_percent != blank %}
+            <div class="tech-specs__row tech-specs__row--gauge">
+              <div class="tech-specs__gauge-label">
+                <span class="tech-specs__row-label">Temperature</span>
+                {% if temperature_description != blank %}
+                  <p class="tech-specs__gauge-description">{{ temperature_description }}</p>
+                {% endif %}
+              </div>
+              <div class="tech-specs__gauge">
+                <div class="tech-specs__gauge-ticks" style="--fill: {{ temperature_percent }}%"></div>
+                <div class="tech-specs__gauge-scale">
+                  <span>0°</span>
+                  <span>32°</span>
+                  <span>50°</span>
+                  <span>70°</span>
+                  <span>95°</span>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+
+          {% if materials != blank or care_items_raw != blank %}
+            <div class="tech-specs__materials-care">
+              {% if materials != blank %}
+                <div class="tech-specs__materials">
+                  <span class="tech-specs__row-label">Materials</span>
+                  <p>{{ materials }}</p>
+                </div>
+              {% endif %}
+
+              {% if care_items_raw != blank %}
+                <div class="tech-specs__care">
+                  <span class="tech-specs__row-label">Care</span>
+                  <ul class="tech-specs__care-list">
+                    {% assign care_lines = care_items_raw | newline_to_br | split: '<br />' %}
+                    {% for line in care_lines %}
+                      {% if line != blank %}
+                        <li>{{ line | strip }}</li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endif %}
+
+              {% if shipping_note != blank %}
+                <p class="tech-specs__care-note">{{ shipping_note }}</p>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
+    {% if has_specs and has_functionality %}
+      <div class="tech-specs__divider"></div>
+    {% endif %}
+
+    {% if has_functionality %}
+      <div class="tech-specs__column tech-specs__column--functionality">
+        <h2 class="tech-specs__heading">{{ section.settings.functionality_heading }}</h2>
+
+        <div class="tech-specs__features">
+          {% assign functionality_lines = functionality_raw | newline_to_br | split: '<br />' %}
+          {% for line in functionality_lines %}
+            {% assign parts = line | split: '|' %}
+            {% if parts.size == 2 %}
+              <div class="tech-specs__feature">
+                <div>
+                  <h3 class="tech-specs__feature-title">{{ parts[0] | strip }}</h3>
+                  <p class="tech-specs__feature-text">{{ parts[1] | strip }}</p>
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endif %}
+
+{% stylesheet %}
+  .tech-specs {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 3rem;
+    padding: 4rem var(--page-margin);
+    background-color: #0d0d0d;
+    color: #ffffff;
+  }
+  .tech-specs__heading {
+    font-size: 1.75rem;
+    margin-bottom: 2rem;
+  }
+  .tech-specs__divider {
+    width: 1px;
+    background-color: rgb(255 255 255 / 15%);
+  }
+
+  .tech-specs__rows {
+    display: flex;
+    flex-direction: column;
+  }
+  .tech-specs__row {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid rgb(255 255 255 / 12%);
+  }
+  .tech-specs__row-label {
+    font-family: var(--font-primary--family);
+    font-weight: 700;
+    font-size: 0.875rem;
+  }
+  .tech-specs__row-value {
+    font-family: var(--font-primary--family);
+    font-size: 0.875rem;
+  }
+
+  .tech-specs__row--gauge {
+    grid-template-columns: 1fr 2fr;
+    align-items: center;
+  }
+  .tech-specs__gauge-description {
+    font-family: var(--font-primary--family);
+    font-size: 0.8125rem;
+    color: rgb(255 255 255 / 65%);
+    margin-top: 0.35rem;
+  }
+  .tech-specs__gauge-ticks {
+    height: 1.25rem;
+    background-image: repeating-linear-gradient(
+      to right,
+      #ffffff 0,
+      #ffffff 1px,
+      transparent 1px,
+      transparent 8px
+    );
+    position: relative;
+  }
+  .tech-specs__gauge-ticks::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: var(--fill);
+    background-image: repeating-linear-gradient(
+      to right,
+      var(--color-button-primary-background) 0,
+      var(--color-button-primary-background) 1px,
+      transparent 1px,
+      transparent 8px
+    );
+  }
+  .tech-specs__gauge-scale {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    font-family: var(--font-primary--family);
+    font-size: 0.75rem;
+    color: rgb(255 255 255 / 65%);
+  }
+
+  .tech-specs__materials-care {
+    padding: 1.25rem 0;
+  }
+  .tech-specs__materials-care > div {
+    margin-bottom: 1.5rem;
+  }
+  .tech-specs__materials p {
+    font-family: var(--font-primary--family);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+  }
+  .tech-specs__care-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .tech-specs__care-list li {
+    font-family: var(--font-primary--family);
+    font-size: 0.8125rem;
+  }
+  .tech-specs__care-note {
+    font-family: var(--font-primary--family);
+    font-size: 0.8125rem;
+    color: rgb(255 255 255 / 65%);
+    margin-top: 1rem;
+  }
+
+  .tech-specs__features {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+  .tech-specs__feature {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+  }
+  .tech-specs__feature-title {
+    font-family: var(--font-primary--family);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .tech-specs__feature-text {
+    font-family: var(--font-primary--family);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: rgb(255 255 255 / 75%);
+  }
+
+  @media (max-width: 60rem) {
+    .tech-specs {
+      grid-template-columns: 1fr;
+    }
+    .tech-specs__divider {
+      width: auto;
+      height: 1px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Tech specs",
+  "settings": [
+    {
+      "type": "text",
+      "id": "specs_heading",
+      "label": "Left heading",
+      "default": "Tech Specs"
+    },
+    {
+      "type": "text",
+      "id": "functionality_heading",
+      "label": "Right heading",
+      "default": "Functionality"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tech specs"
+    }
+  ]
+}
+{% endschema %}

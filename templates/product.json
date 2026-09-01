@@ -12,9 +12,20 @@
     "main": {
       "type": "product",
       "settings": {}
+    },
+    "tech-specs": {
+      "type": "product-tech-specs",
+      "settings": {
+        "specs_heading": "Tech Specs",
+        "functionality_heading": "Functionality"
+      }
+    },
+    "product-video": {
+      "type": "product-video",
+      "settings": {
+        "autoplay": false
+      }
     }
   },
-  "order": [
-    "main"
-  ]
+  "order": ["main", "tech-specs", "product-video"]
 }

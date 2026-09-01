@@ -11,3 +11,6 @@
 #
 # Ignore templates and sections with a regular expression:
 #   /(templates|sections)/.*\.json/
+
+# Too large for Shopify's asset upload limit (103MB, gets HTTP 413)
+assets/founders-club-video.mp4

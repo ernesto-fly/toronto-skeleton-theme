@@ -183,7 +183,7 @@
     width: 100%;
     height: 1px;
     border: none;
-    background-color: var(--color-button-primary-background);
+    background-color: #000000;
     margin: 0;
   }
 
@@ -218,12 +218,15 @@
   }
   .button-selectors-stacked__button:hover,
   .button-selectors-stacked__button--active {
-    color: var(--color-button-primary-background);
     transform: translateY(-4px);
     box-shadow: -4px 4px 12px -4px color-mix(in srgb, var(--color-button-primary-background) 35%, transparent);
   }
+  .button-selectors-stacked__button--active {
+    color: var(--color-button-primary-background);
+  }
   .button-selectors-stacked__button:hover svg,
   .button-selectors-stacked__button--active svg {
+    color: var(--color-button-primary-background);
     transform: translateX(0.25rem);
   }
 

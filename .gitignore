@@ -15,3 +15,6 @@ node_modules/
 ## Release files
 release
 *.zip
+
+# Large media excluded from git (GitHub 100MB limit) - synced to Shopify CDN directly instead
+assets/founders-club-video.mp4

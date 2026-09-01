@@ -1,0 +1,55 @@
+{% comment %}
+  Video source priority:
+  1. product.metafields.custom.video_file (a Shopify "File" metafield) --
+     the normal path for any product once uploaded via Files in admin.
+  2. A hardcoded theme-asset fallback for the Founders Jacket specifically,
+     since that file (103MB) is too large for Shopify's Files upload and
+     had to be shipped as a theme asset instead.
+{% endcomment %}
+
+{% assign video_url = product.metafields.custom.video_file.value.url %}
+{% if video_url == blank and product.handle == 'toronto-koi-founders-jacket' %}
+  {% assign video_url = 'founders-club-video.mp4' | asset_url %}
+{% endif %}
+
+{% if video_url != blank %}
+  <div class="product-video full-width">
+    <video
+      class="product-video__player"
+      src="{{ video_url }}"
+      {% if section.settings.autoplay %}autoplay muted loop playsinline{% endif %}
+      controls
+      preload="metadata"
+    ></video>
+  </div>
+{% endif %}
+
+{% stylesheet %}
+  .product-video {
+    width: 100%;
+  }
+  .product-video__player {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product video",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Autoplay (muted, looping)",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product video"
+    }
+  ]
+}
+{% endschema %}
